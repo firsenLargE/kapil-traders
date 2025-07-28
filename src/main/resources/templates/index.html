@@ -29,33 +29,38 @@
         <a th:href="@{/}" class="navbar-brand text-white mb-3 animate__animated animate__fadeInDown">Kapil Traders</a>
         <ul class="nav nav-pills flex-column mb-auto">
             <li class="nav-item">
-                <a th:href="@{/}" th:classappend="${#httpServletRequest.requestURI == '/'} ? 'active'" class="nav-link">
+                <a th:href="@{/}" th:classappend="${currentURI == '/'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-home me-2"></i>Dashboard
                 </a>
             </li>
             <li>
-                <a th:href="@{/products}" th:classappend="${#httpServletRequest.requestURI == '/products'} ? 'active'" class="nav-link">
+                <a th:href="@{/products}" th:classappend="${currentURI == '/products'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-box me-2"></i>Products
                 </a>
             </li>
             <li>
-                <a th:href="@{/products/add}" th:classappend="${#httpServletRequest.requestURI == '/products/add'} ? 'active'" class="nav-link">
+                <a th:href="@{/products/add}" th:classappend="${currentURI == '/products/add'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-plus-circle me-2"></i>Add Product
                 </a>
             </li>
             <li>
-                <a th:href="@{/transfers}" th:classappend="${#httpServletRequest.requestURI == '/transfers'} ? 'active'" class="nav-link">
+                <a th:href="@{/transfers}" th:classappend="${currentURI == '/transfers'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-truck me-2"></i>Transfers
                 </a>
             </li>
             <li>
-                <a th:href="@{/reports}" th:classappend="${#httpServletRequest.requestURI == '/reports'} ? 'active'" class="nav-link">
+                <a th:href="@{/reports}" th:classappend="${currentURI == '/reports'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-chart-line me-2"></i>Reports
                 </a>
             </li>
             <li>
-                <a th:href="@{/barcode-scan}" th:classappend="${#httpServletRequest.requestURI == '/barcode-scan'} ? 'active'" class="nav-link">
+                <a th:href="@{/barcode-scan}" th:classappend="${currentURI == '/barcode-scan'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-barcode me-2"></i>Scan
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/categories}" th:classappend="${currentURI == '/categories'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-th-large me-2"></i>Categories
                 </a>
             </li>
         </ul>

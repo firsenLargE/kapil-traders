@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kapil Traders - Add Product</title>
+    <title>Kapil Traders - Add Category</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
@@ -15,11 +15,10 @@
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-primary { background-color: #007bff; border: none; transition: all 0.3s ease; }
         .btn-primary:hover { background-color: #0056b3; transform: scale(1.05); }
-        .category-info { background-color: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .image-upload-area { 
             border: 2px dashed #dee2e6; 
             border-radius: 10px; 
-            padding: 20px; 
+            padding: 30px; 
             text-align: center; 
             transition: all 0.3s ease;
             background-color: #f8f9fa;
@@ -28,15 +27,20 @@
             border-color: #007bff; 
             background-color: #e3f2fd; 
         }
+        .image-upload-area.dragover { 
+            border-color: #28a745; 
+            background-color: #d4edda; 
+        }
         .image-preview { 
-            max-width: 200px; 
-            max-height: 150px; 
+            max-width: 300px; 
+            max-height: 200px; 
             border-radius: 10px; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin: 10px auto;
             display: none;
         }
-        .upload-icon { font-size: 2rem; color: #6c757d; margin-bottom: 10px; }
+        .upload-icon { font-size: 3rem; color: #6c757d; margin-bottom: 15px; }
+        .file-info { margin-top: 10px; font-size: 0.9em; color: #6c757d; }
         .validation-error { color: #dc3545; font-size: 0.9em; margin-top: 5px; }
         .validation-success { color: #28a745; font-size: 0.9em; margin-top: 5px; }
     </style>
@@ -53,7 +57,7 @@
                 </a>
             </li>
             <li>
-                <a th:href="@{/categories}" class="nav-link">
+                <a th:href="@{/categories}" class="nav-link active" aria-current="page">
                     <i class="fas fa-th-large me-2"></i>Categories
                 </a>
             </li>
@@ -82,120 +86,45 @@
 
     <!-- Main Content -->
     <div class="flex-grow-1 p-4">
-        <h1 class="mb-4 animate__animated animate__fadeInUp">Add New Product</h1>
-        <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">Fill in the details to add a new product to your inventory.</p>
+        <h1 class="mb-4 animate__animated animate__fadeInUp">Add New Category</h1>
+        <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">Create a new product category with picture card.</p>
 
-        <!-- Category Info -->
-        <div class="category-info animate__animated animate__fadeInUp animate__delay-1s" th:if="${category}">
-            <h5><i class="fas fa-info-circle me-2"></i>Adding Product to: <span th:text="${category.name}" class="fw-bold"></span></h5>
-            <p class="mb-0 text-muted" th:text="${category.description}"></p>
-        </div>
-
-        <!-- Add Product Form -->
+        <!-- Add Category Form -->
         <div class="card animate__animated animate__fadeInUp animate__delay-2s">
             <div class="card-body">
-                <form th:action="@{/products/add/category/{categoryId}(categoryId=${category.id})}" th:object="${product}" method="post" enctype="multipart/form-data" id="productForm">
+                <form th:action="@{/categories/add}" th:object="${category}" method="post" enctype="multipart/form-data" id="categoryForm">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="name" class="form-label">Product Name</label>
-                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                <label for="name" class="form-label">Category Name</label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required placeholder="e.g., Coke, Wai Wai">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="variant" class="form-label">Variant/Size</label>
-                                <select class="form-control" id="variant" th:field="*{variant}" required>
-                                    <option value="">Select Variant</option>
-                                    <option value="250ml">250ml</option>
-                                    <option value="500ml">500ml</option>
-                                    <option value="1000ml">1000ml</option>
-                                    <option value="2250ml">2250ml</option>
-                                    <option value="1L">1L</option>
-                                    <option value="2L">2L</option>
-                                    <option value="5L">5L</option>
-                                    <option value="10L">10L</option>
-                                    <option value="Small">Small</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Large">Large</option>
-                                    <option value="Extra Large">Extra Large</option>
-                                </select>
+                                <label for="brand" class="form-label">Brand</label>
+                                <input type="text" class="form-control" id="brand" th:field="*{brand}" required placeholder="e.g., Coca-Cola, Chaudhary Group">
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="quantity" class="form-label">Quantity</label>
-                                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" required min="1">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="price" class="form-label">Buying Price (NPR)</label>
-                                <input type="number" step="0.01" class="form-control" id="price" th:field="*{price}" required min="0">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="sellingRate" class="form-label">Selling Rate (NPR)</label>
-                                <input type="number" step="0.01" class="form-control" id="sellingRate" th:field="*{sellingRate}" required min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="barcode" class="form-label">Barcode (Optional)</label>
-                                <input type="text" class="form-control" id="barcode" th:field="*{barcode}" placeholder="Scan or enter barcode">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="buyingDate" class="form-label">Buying Date</label>
-                                <input type="date" class="form-control" id="buyingDate" th:field="*{buyingDate}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="expirationDate" class="form-label">Expiration Date</label>
-                                <input type="date" class="form-control" id="expirationDate" th:field="*{expirationDate}" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="supplier" class="form-label">Supplier</label>
-                                <input type="text" class="form-control" id="supplier" th:field="*{supplier}" required placeholder="e.g., Coca-Cola Nepal">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="imageUrl" class="form-label">Product Image URL (Optional)</label>
-                                <input type="url" class="form-control" id="imageUrl" th:field="*{imageUrl}" placeholder="https://example.com/image.jpg">
-                                <small class="form-text text-muted">Or upload an image below</small>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" th:field="*{description}" rows="3"
+                                  placeholder="Enter category description..."></textarea>
                     </div>
 
                     <!-- Image Upload Section -->
                     <div class="mb-4">
-                        <label class="form-label">Product Image Upload</label>
+                        <label class="form-label">Category Image</label>
                         <div class="image-upload-area" id="imageUploadArea">
                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                            <h6>Upload Product Image</h6>
-                            <p class="text-muted small">Drag & drop an image here or click to browse</p>
+                            <h5>Upload Category Image</h5>
+                            <p class="text-muted">Drag & drop an image here or click to browse</p>
                             <p class="text-muted small">Recommended: 400x300px, Max 2MB, JPG/PNG</p>
                             <input type="file" id="imageFile" name="imageFile" accept="image/*" style="display: none;">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('imageFile').click()">
-                                <i class="fas fa-upload me-1"></i>Choose File
+                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('imageFile').click()">
+                                <i class="fas fa-upload me-2"></i>Choose File
                             </button>
                         </div>
                         
@@ -211,17 +140,15 @@
                         
                         <!-- Validation Messages -->
                         <div id="imageValidation" class="mt-2"></div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" th:field="*{description}" rows="3" placeholder="Enter product description..."></textarea>
+                        
+                        <!-- Hidden field for image URL -->
+                        <input type="hidden" id="imageUrl" th:field="*{imageUrl}">
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <a th:href="@{/products}" class="btn btn-secondary">Cancel</a>
+                        <a th:href="@{/categories}" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary animate__animated animate__pulse animate__infinite" id="submitBtn">
-                            <i class="fas fa-save me-2"></i>Save Product
+                            <i class="fas fa-save me-2"></i>Save Category
                         </button>
                     </div>
                 </form>
@@ -285,6 +212,9 @@ function handleImageSelection(file) {
         document.getElementById('imagePreviewContainer').style.display = 'block';
         document.getElementById('imageUploadArea').style.display = 'none';
         
+        // Set the image URL for form submission
+        document.getElementById('imageUrl').value = e.target.result;
+        
         showValidationSuccess('Image selected successfully!');
     };
     reader.readAsDataURL(file);
@@ -311,6 +241,7 @@ function removeImage() {
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('imagePreviewContainer').style.display = 'none';
     document.getElementById('imageUploadArea').style.display = 'block';
+    document.getElementById('imageUrl').value = '';
     document.getElementById('imageValidation').innerHTML = '';
 }
 
@@ -323,6 +254,16 @@ function showValidationSuccess(message) {
     const validationDiv = document.getElementById('imageValidation');
     validationDiv.innerHTML = `<div class="validation-success"><i class="fas fa-check-circle me-1"></i>${message}</div>`;
 }
+
+// Form submission
+document.getElementById('categoryForm').addEventListener('submit', function(e) {
+    const imageUrl = document.getElementById('imageUrl').value;
+    if (!imageUrl) {
+        e.preventDefault();
+        showValidationError('Please select a category image');
+        return;
+    }
+});
 </script>
 </body>
-</html>
+</html> 

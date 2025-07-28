@@ -14,7 +14,12 @@ public class TransferController {
 
     @GetMapping("/transfers")
     public String listTransfers(Model model) {
-        model.addAttribute("transfers", transferService.getAllTransfers());
+        try {
+            model.addAttribute("transfers", transferService.getAllTransfers());
+        } catch (Exception e) {
+            model.addAttribute("transfers", java.util.Collections.emptyList());
+            model.addAttribute("error", "Error loading transfers: " + e.getMessage());
+        }
         return "transfers";
     }
 
@@ -26,14 +31,22 @@ public class TransferController {
 
     @PostMapping("/transfers")
     public String saveTransfer(@ModelAttribute Transfer transfer) {
-        transfer.setStatus("Pending");
-        transferService.saveTransfer(transfer);
+        try {
+            transfer.setStatus("Pending");
+            transferService.saveTransfer(transfer);
+        } catch (Exception e) {
+            System.err.println("Error saving transfer: " + e.getMessage());
+        }
         return "redirect:/transfers";
     }
 
     @GetMapping("/transfers/cancel/{id}")
     public String cancelTransfer(@PathVariable Long id) {
-        transferService.cancelTransfer(id);
+        try {
+            transferService.cancelTransfer(id);
+        } catch (Exception e) {
+            System.err.println("Error canceling transfer: " + e.getMessage());
+        }
         return "redirect:/transfers";
     }
 }

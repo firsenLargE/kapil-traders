@@ -11,10 +11,15 @@
         body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; }
         .sidebar { min-height: 100vh; background-color: #1a252f; }
         .sidebar .nav-link { color: #ffffff; transition: background 0.3s; }
+        .sidebar .nav-link.active { background-color: #007bff; }
         .sidebar .nav-item:hover { background-color: #2c3e50; }
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-primary { background-color: #007bff; border: none; transition: all 0.3s ease; }
         .btn-primary:hover { background-color: #0056b3; transform: scale(1.05); }
+        .scan-area { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .barcode-input { font-size: 1.2rem; letter-spacing: 2px; }
+        .product-card { border-left: 4px solid #28a745; }
+        .alert { border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -24,32 +29,32 @@
         <a th:href="@{/}" class="navbar-brand text-white mb-3 animate__animated animate__fadeInDown">Kapil Traders</a>
         <ul class="nav nav-pills flex-column mb-auto">
             <li class="nav-item">
-                <a th:href="@{/}" class="nav-link">
+                <a th:href="@{/}" th:classappend="${currentURI == '/'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-home me-2"></i>Dashboard
                 </a>
             </li>
             <li>
-                <a th:href="@{/products}" class="nav-link">
+                <a th:href="@{/categories}" th:classappend="${currentURI == '/categories'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-th-large me-2"></i>Categories
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/products}" th:classappend="${currentURI == '/products'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-box me-2"></i>Products
                 </a>
             </li>
             <li>
-                <a th:href="@{/products/add}" class="nav-link">
-                    <i class="fas fa-plus-circle me-2"></i>Add Product
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/transfers}" class="nav-link">
+                <a th:href="@{/transfers}" th:classappend="${currentURI == '/transfers'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-truck me-2"></i>Transfers
                 </a>
             </li>
             <li>
-                <a th:href="@{/reports}" class="nav-link">
+                <a th:href="@{/reports}" th:classappend="${currentURI == '/reports'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-chart-line me-2"></i>Reports
                 </a>
             </li>
             <li>
-                <a th:href="@{/barcode-scan}" class="nav-link active" aria-current="page">
+                <a th:href="@{/barcode-scan}" th:classappend="${currentURI == '/barcode-scan'} ? 'active' : ''" class="nav-link">
                     <i class="fas fa-barcode me-2"></i>Scan
                 </a>
             </li>
@@ -58,41 +63,144 @@
 
     <!-- Main Content -->
     <div class="flex-grow-1 p-4">
-        <h1 class="mb-4 animate__animated animate__fadeInUp">Barcode Scanner</h1>
-        <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">Scan barcodes to quickly find or update products.</p>
+        <h1 class="mb-4 animate__animated animate__fadeInUp">
+            <i class="fas fa-barcode me-2"></i>Barcode Scanner
+        </h1>
+        <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">
+            Scan barcodes to quickly find or update products in your inventory.
+        </p>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success animate__animated animate__fadeInUp animate__delay-1s" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger animate__animated animate__fadeInUp animate__delay-1s" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
 
         <!-- Barcode Scan Form -->
-        <div class="card animate__animated animate__fadeInUp animate__delay-2s">
-            <div class="card-body">
-                <form th:action="@{/products/scan}" method="post">
-                    <div class="mb-3">
-                        <label for="barcode" class="form-label">Barcode</label>
-                        <input type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan or enter barcode" autofocus>
+        <div class="card scan-area animate__animated animate__fadeInUp animate__delay-2s">
+            <div class="card-body text-center">
+                <i class="fas fa-barcode fa-3x mb-3"></i>
+                <h3 class="mb-4">Scan Product Barcode</h3>
+                <form th:action="@{/barcode-scan}" method="post" id="barcodeForm">
+                    <div class="mb-4">
+                        <label for="barcode" class="form-label">Enter or Scan Barcode</label>
+                        <input type="text" class="form-control barcode-input" id="barcode" name="barcode" 
+                               placeholder="Enter barcode here..." autofocus required
+                               th:value="${param.barcode}">
+                        <div class="form-text text-white-50">Press Enter or click Scan to search</div>
                     </div>
-                    <button type="submit" class="btn btn-primary animate__animated animate__pulse animate__infinite">Scan</button>
+                    <button type="submit" class="btn btn-light btn-lg animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-search me-2"></i>Scan Barcode
+                    </button>
                 </form>
             </div>
         </div>
 
         <!-- Scan Result -->
         <div class="card mt-4 animate__animated animate__fadeInUp animate__delay-3s" th:if="${scannedProduct}">
-            <div class="card-header">
-                <h3>Scanned Product</h3>
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Product Found</h3>
             </div>
-            <div class="card-body">
-                <p><strong>Name:</strong> <span th:text="${scannedProduct.name}"></span></p>
-                <p><strong>Category:</strong> <span th:text="${scannedProduct.category}"></span></p>
-                <p><strong>Quantity:</strong> <span th:text="${scannedProduct.quantity}"></span></p>
-                <p><strong>Price (NPR):</strong> <span th:text="${scannedProduct.price}"></span></p>
-                <p><strong>Barcode:</strong> <span th:text="${scannedProduct.barcode}"></span></p>
-                <a th:href="@{/products/edit/{id}(id=${scannedProduct.id})}" class="btn btn-primary">Edit Product</a>
+            <div class="card-body product-card">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <img th:src="${scannedProduct.imageUrl}" th:alt="${scannedProduct.name}" 
+                             class="img-fluid rounded" style="max-height: 150px;"
+                             th:onerror="'this.src=\'/images/default-product.jpg\''">
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-primary" th:text="${scannedProduct.name}">Product Name</h5>
+                                <p class="mb-1"><strong>Category:</strong> <span th:text="${scannedProduct.category}"></span></p>
+                                <p class="mb-1"><strong>Variant:</strong> <span th:text="${scannedProduct.variant}"></span></p>
+                                <p class="mb-1"><strong>Barcode:</strong> <code th:text="${scannedProduct.barcode}"></code></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Stock:</strong> 
+                                    <span th:text="${scannedProduct.quantity}" 
+                                          th:class="${scannedProduct.quantity <= 10} ? 'text-danger fw-bold' : 'text-success'"></span> units
+                                </p>
+                                <p class="mb-1"><strong>Buy Price:</strong> NPR <span th:text="${scannedProduct.price}"></span></p>
+                                <p class="mb-1"><strong>Sell Price:</strong> NPR <span th:text="${scannedProduct.sellingRate}"></span></p>
+                                <p class="mb-1"><strong>Supplier:</strong> <span th:text="${scannedProduct.supplier}"></span></p>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a th:href="@{/products/edit/{id}(id=${scannedProduct.id})}" class="btn btn-primary me-2">
+                                <i class="fas fa-edit me-1"></i>Edit Product
+                            </a>
+                            <a th:href="@{/products/add/inventory/{id}(id=${scannedProduct.id})}" class="btn btn-success">
+                                <i class="fas fa-plus me-1"></i>Add Inventory
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-plus-circle fa-2x text-primary mb-2"></i>
+                        <h5>Add New Product</h5>
+                        <p class="text-muted">Create a new product in your inventory</p>
+                        <a th:href="@{/products/add/new}" class="btn btn-outline-primary">Add Product</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-box fa-2x text-success mb-2"></i>
+                        <h5>View All Products</h5>
+                        <p class="text-muted">Browse and manage your product inventory</p>
+                        <a th:href="@{/products}" class="btn btn-outline-success">View Products</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                        <h5>View Reports</h5>
+                        <p class="text-muted">Check your inventory reports and analytics</p>
+                        <a th:href="@{/reports}" class="btn btn-outline-info">View Reports</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap and Font Awesome JS -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Auto-focus on barcode input
+document.addEventListener('DOMContentLoaded', function() {
+    const barcodeInput = document.getElementById('barcode');
+    if (barcodeInput) {
+        barcodeInput.focus();
+    }
+});
+
+// Form validation
+document.getElementById('barcodeForm').addEventListener('submit', function(e) {
+    const barcode = document.getElementById('barcode').value.trim();
+    if (!barcode) {
+        e.preventDefault();
+        alert('Please enter a barcode to scan');
+        return false;
+    }
+});
+</script>
 </body>
 </html>

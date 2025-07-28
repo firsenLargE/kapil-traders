@@ -13,7 +13,12 @@ public class ReportController {
 
     @GetMapping("/reports")
     public String generateReport(Model model) {
-        model.addAttribute("reports", reportService.generateStockReport());
+        try {
+            model.addAttribute("reports", reportService.generateStockReport());
+        } catch (Exception e) {
+            model.addAttribute("reports", java.util.Collections.emptyList());
+            model.addAttribute("error", "Error generating report: " + e.getMessage());
+        }
         return "reports";
     }
 }

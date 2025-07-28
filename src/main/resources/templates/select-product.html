@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kapil Traders - Select Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; }
+        .sidebar { min-height: 100vh; background-color: #1a252f; }
+        .sidebar .nav-link { color: #ffffff; transition: background 0.3s; }
+        .sidebar .nav-link.active { background-color: #007bff; }
+        .sidebar .nav-item:hover { background-color: #2c3e50; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .product-card { cursor: pointer; }
+        .product-image { height: 200px; object-fit: cover; border-radius: 10px 10px 0 0; }
+        .btn-primary { background-color: #007bff; border: none; transition: all 0.3s ease; }
+        .btn-primary:hover { background-color: #0056b3; transform: scale(1.05); }
+        .stock-info { font-size: 0.9em; color: #6c757d; }
+        .low-stock { color: #dc3545; font-weight: bold; }
+        .category-badge { position: absolute; top: 10px; right: 10px; }
+    </style>
+</head>
+<body>
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column flex-shrink-0 p-3">
+        <a th:href="@{/}" class="navbar-brand text-white mb-3 animate__animated animate__fadeInDown">Kapil Traders</a>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a th:href="@{/}" th:classappend="${currentURI == '/'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-home me-2"></i>Dashboard
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/categories}" th:classappend="${currentURI == '/categories'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-th-large me-2"></i>Categories
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/products}" th:classappend="${currentURI == '/products'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-box me-2"></i>Products
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/transfers}" th:classappend="${currentURI == '/transfers'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-truck me-2"></i>Transfers
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/reports}" th:classappend="${currentURI == '/reports'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-chart-line me-2"></i>Reports
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/barcode-scan}" th:classappend="${currentURI == '/barcode-scan'} ? 'active' : ''" class="nav-link">
+                    <i class="fas fa-barcode me-2"></i>Scan
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <h1 class="mb-4 animate__animated animate__fadeInUp">Add Inventory</h1>
+        <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">Select a product to add more inventory or create a new product.</p>
+
+        <!-- Filter Bar -->
+        <div class="mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select class="form-control" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchFilter" placeholder="Search products...">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-outline-secondary" onclick="clearFilters()">Clear Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Cards -->
+        <div class="row" id="productCards">
+            <div class="col-md-4 mb-4 product-item" th:each="product : ${existingProducts}" 
+                 th:data-category="${product.category}" th:data-name="${product.name}">
+                <div class="card product-card animate__animated animate__fadeInUp" 
+                     th:onclick="'window.location.href=\'/products/add/inventory/' + ${product.id} + '\''">
+                    <span class="badge bg-primary category-badge" th:text="${product.category}"></span>
+                    <img th:src="${product.imageUrl}" th:alt="${product.name}" class="product-image" 
+                         th:onerror="'this.src=\'/images/default-product.jpg\''">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" th:text="${product.name}">Product Name</h5>
+                        <p class="card-text text-muted" th:text="${product.variant}">Variant</p>
+                        <div class="stock-info">
+                            <span th:text="'Stock: ' + ${product.quantity} + ' units'" 
+                                  th:class="${product.quantity <= 10} ? 'low-stock' : ''"></span>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted" th:text="'Buy: NPR ' + ${product.price}"></small><br>
+                            <small class="text-muted" th:text="'Sell: NPR ' + ${product.sellingRate}"></small>
+                        </div>
+                        <button class="btn btn-primary mt-2">Add Inventory</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Products Message -->
+        <div class="text-center mt-4" th:if="${existingProducts.isEmpty()}">
+            <div class="card">
+                <div class="card-body">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h4>No Products Found</h4>
+                    <p class="text-muted">No products have been added yet. Create your first product!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Product Button -->
+        <div class="text-center mt-4">
+            <a th:href="@{/products/add/new}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Add New Product
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+// Filter functionality
+document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+document.getElementById('searchFilter').addEventListener('input', filterProducts);
+
+function filterProducts() {
+    const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+    const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+    const products = document.querySelectorAll('.product-item');
+
+    products.forEach(product => {
+        const category = product.getAttribute('data-category').toLowerCase();
+        const name = product.getAttribute('data-name').toLowerCase();
+        
+        const categoryMatch = categoryFilter === '' || category === categoryFilter;
+        const searchMatch = searchFilter === '' || name.includes(searchFilter);
+        
+        if (categoryMatch && searchMatch) {
+            product.style.display = 'block';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('searchFilter').value = '';
+    filterProducts();
+}
+</script>
+</body>
+</html> 

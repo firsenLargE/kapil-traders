@@ -14,13 +14,38 @@ public class BarcodeController {
     private BarcodeService barcodeService;
 
     @GetMapping("/barcode-scan")
-    public String scanBarcodeForm() {
+    public String scanBarcodeForm(Model model) {
         return "barcode-scan";
     }
 
-    @PostMapping("/products/scan")
+    @PostMapping("/barcode-scan")
     public String scanBarcode(@RequestParam String barcode, Model model) {
-        barcodeService.scanBarcode(barcode).ifPresent(product -> model.addAttribute("scannedProduct", product));
+        try {
+            // Validate barcode input
+            if (barcode == null || barcode.trim().isEmpty()) {
+                model.addAttribute("error", "Please enter a barcode to scan");
+                return "barcode-scan";
+            }
+            
+            // Clean the barcode input
+            String cleanBarcode = barcode.trim();
+            
+            // Try to find the product
+            var productOptional = barcodeService.scanBarcode(cleanBarcode);
+            
+            if (productOptional.isPresent()) {
+                model.addAttribute("scannedProduct", productOptional.get());
+                model.addAttribute("success", "Product found successfully!");
+            } else {
+                model.addAttribute("error", "No product found with barcode: " + cleanBarcode);
+            }
+            
+        } catch (Exception e) {
+            model.addAttribute("error", "Error scanning barcode: " + e.getMessage());
+            System.err.println("Barcode scan error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         return "barcode-scan";
     }
 }

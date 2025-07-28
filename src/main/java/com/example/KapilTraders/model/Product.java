@@ -1,11 +1,10 @@
-package model;
+package com.example.KapilTraders.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import java.time.LocalDate;
 
 @Entity
 @Data
@@ -15,14 +14,7 @@ public class Product {
     private Long id;
     private String name;
     private String category;
-    private String variant; // e.g., "250ml", "500ml", "1000ml"
     private int quantity;
-    private double price; // buying price
-    private double sellingRate; // selling price
+    private double price;
     private String barcode;
-    private LocalDate buyingDate;
-    private LocalDate expirationDate;
-    private String supplier;
-    private String description;
-    private String imageUrl; // for product image
 }

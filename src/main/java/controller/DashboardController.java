@@ -1,6 +1,5 @@
 package controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +18,18 @@ public class DashboardController {
 
     @GetMapping("/")
     public String dashboard(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
-        model.addAttribute("totalProducts", reportService.countTotalProducts());
-        model.addAttribute("lowStockCount", reportService.countLowStockProducts());
-        model.addAttribute("pendingTransfers", reportService.countPendingTransfers());
-        return "index";  // this matches your index.html
+        try {
+            model.addAttribute("products", productService.getAllProducts());
+            model.addAttribute("totalProducts", reportService.countTotalProducts());
+            model.addAttribute("lowStockCount", reportService.countLowStockProducts());
+            model.addAttribute("pendingTransfers", reportService.countPendingTransfers());
+        } catch (Exception e) {
+            model.addAttribute("products", java.util.Collections.emptyList());
+            model.addAttribute("totalProducts", 0);
+            model.addAttribute("lowStockCount", 0);
+            model.addAttribute("pendingTransfers", 0);
+            model.addAttribute("error", "Error loading dashboard data: " + e.getMessage());
+        }
+        return "index";
     }
 }
