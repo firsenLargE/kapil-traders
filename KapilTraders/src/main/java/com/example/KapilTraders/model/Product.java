@@ -1,4 +1,4 @@
-package model;
+package com.example.KapilTraders.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,13 +8,13 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Transfer {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String productName;
-    private String fromWarehouse;
-    private String toWarehouse;
+    private String name;
+    private String category;
     private int quantity;
-    private String status; // e.g., Pending, Completed, Cancelled
+    private double price;
+
 }
