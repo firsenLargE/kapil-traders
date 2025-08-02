@@ -6,15 +6,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-@Entity
+
+
 @Data
+@Entity
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     private String name;
     private String category;
+    private String size;
     private int quantity;
     private double price;
+    private java.time.LocalDate date;
 
 }

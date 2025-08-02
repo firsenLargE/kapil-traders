@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Kapil Traders Dashboard'"></title>
+    <!-- Chart.js CDN for sales report chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.min.js"></script>
+    <style>
+        /* Previous styles unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #b71c1c, #00695c, #0d47a1);
+            background-size: 400%;
+            animation: gradientShift 15s ease infinite;
+            overflow-x: hidden;
+            color: #fff;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+        .left-column {
+            flex: 1;
+            min-width: 300px;
+        }
+        .right-column {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #ff8a80, #80deea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlow 2s ease-in-out infinite alternate;
+            margin-bottom: 20px;
+            padding-top: 40px;
+            text-align: center;
+        }
+        @keyframes textGlow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+        }
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #fff;
+        }
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .table th {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .summary-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        .summary-card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .action-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(to right, #ff8a80, #80deea);
+            color: #fff;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+        .action-button:hover {
+            opacity: 0.9;
+        }
+        .contact-info p {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+        .background-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+        .shape:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+        .shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 20%;
+            animation-delay: 5s;
+        }
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 15%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-50px) rotate(180deg); }
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+                padding-top: 20px;
+            }
+            .container {
+                flex-direction: column;
+            }
+            .right-column {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="background-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<h1 th:text="${title} ?: 'Kapil Traders Dashboard'"></h1>
+<p>Welcome, <span th:text="${session.validuser != null} ? ${session.validuser.uname} : 'User'"></span>!</p>
+<div class="container">
+    <!-- Left Column: Products, Orders, Inventory Summary, Recent Activity, Contact -->
+    <div class="left-column">
+        <!-- Inventory Summary -->
+        <div class="section">
+            <h2>Inventory Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Total Products</h3>
+                    <p>150</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Low Stock</h3>
+                    <p>12</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Value</h3>
+                    <p>$45,000</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="section">
+            <h2>Products</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Product A</td>
+                    <td>50</td>
+                    <td>$20.00</td>
+                    <td><a class="action-button" href="#">Edit</a></td>
+                </tr>
+                <tr>
+                    <td>Product B</td>
+                    <td>10</td>
+                    <td>$15.00</td>
+                    <td><a class="action-button" href="#">Edit</a></td>
+                </tr>
+                </tbody>
+            </table>
+            <a class="action-button" href="#">Add Product</a>
+        </div>
+
+        <!-- Orders -->
+        <div class="section">
+            <h2>Recent Orders</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>#1001</td>
+                    <td>John Doe</td>
+                    <td>$200.00</td>
+                    <td>Pending</td>
+                    <td><a class="action-button" href="#">View</a></td>
+                </tr>
+                <tr>
+                    <td>#1002</td>
+                    <td>Jane Smith</td>
+                    <td>$150.00</td>
+                    <td>Shipped</td>
+                    <td><a class="action-button" href="#">View</a></td>
+                </tr>
+                </tbody>
+            </table>
+            <a class="action-button" href="#">Create Order</a>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section">
+            <h2>Recent Activity</h2>
+            <ul>
+                <li>Product A stock updated: +20 units (2025-08-02 15:30)</li>
+                <li>Order #1001 placed by John Doe (2025-08-02 14:00)</li>
+                <li>User Jane logged in (2025-08-02 13:45)</li>
+            </ul>
+        </div>
+
+        <!-- Contact -->
+        <div class="section contact-info">
+            <h2>Contact</h2>
+            <p>Email: <a href="mailto:support@kapiltraders.com">support@kapiltraders.com</a></p>
+            <p>Phone: +1-555-123-4567</p>
+            <p>Address: 123 Business Street, City, Country</p>
+            <a class="action-button" href="#">Send Inquiry</a>
+        </div>
+    </div>
+
+    <!-- Right Column: Sales Report Chart -->
+    <div class="right-column">
+        <div class="section">
+            <h2>Sales Report</h2>
+            <canvas id="salesChart" style="max-width: 100%;"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chart.js configuration for Sales Report
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Sales ($)',
+                data: [12000, 19000, 15000, 22000, 18000, 25000],
+                backgroundColor: 'rgba(255, 138, 128, 0.5)',
+                borderColor: 'rgba(255, 138, 128, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Sales Amount ($)',
+                        color: '#fff'
+                    },
+                    ticks: { color: '#fff' }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month',
+                        color: '#fff'
+                    },
+                    ticks: { color: '#fff' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+</script>
+</body>
+</html>
+```
