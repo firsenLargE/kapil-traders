@@ -68,7 +68,7 @@
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            margin-top: 50px; /* Moves the form lower on the screen */
+            margin-top: 50px;
         }
 
         .login-form input {
@@ -124,6 +124,12 @@
 
         .error-message {
             color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: #4caf50;
             font-size: 0.9rem;
             margin-top: 10px;
         }
@@ -200,12 +206,17 @@
 </div>
 <h1 th:text="${title} ?: 'Kapil Traders'"></h1>
 <p th:text="${description} ?: 'Create your account to manage inventory.'"></p>
-<form class="login-form" th:action="@{/signup}" method="post">
-    <input type="text" name="username" placeholder="Username" required />
-    <input type="email" name="email" placeholder="Email" required />
-    <input type="password" name="password" placeholder="Password" required />
+
+<form class="login-form" th:action="@{/signup}" method="post" th:object="${user}">
+    <input type="text" th:field="*{uname}" name="uname" placeholder="Username" required />
+    <input type="email" th:field="*{email}" name="email" placeholder="Email" required />
+    <input type="password" th:field="*{password}" name="password" placeholder="Password" required />
     <button type="submit">Sign Up</button>
-    <a class="signup-link" th:href="@{/login}" href="/login">Already have an account? Log in</a>
+    
+    <div class="error-message" th:if="${error}" th:text="${error}"></div>
+    <div class="success-message" th:if="${success}" th:text="${success}"></div>
+    
+    <a class="signup-link" th:href="@{/}" href="/">Already have an account? Log in</a>
 </form>
 </body>
 </html>

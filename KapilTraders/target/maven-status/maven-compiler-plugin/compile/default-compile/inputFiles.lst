@@ -1,0 +1,13 @@
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/KapilTradersApplication.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/ServiceImpl/ProductServiceImpl.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/ServiceImpl/UserServiceImpl.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/config/DataInitializer.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/controller/HomeController.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/controller/ProductController.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/controller/SignupController.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/model/Product.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/model/User.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/repository/ProductRepository.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/repository/UserRepository.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/service/ProductService.java
+/home/zion/Desktop/clone/kapil-traders/KapilTraders/src/main/java/com/example/KapilTraders/service/UserService.java

@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} ?: 'Kapil Traders Dashboard'"></title>
-    <!-- Chart.js CDN for sales report chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
     <style>
-        /* Previous styles unchanged */
         * {
             margin: 0;
             padding: 0;
@@ -28,6 +27,41 @@
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+        .navbar-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         .container {
             display: flex;
@@ -122,6 +156,7 @@
         }
         .action-button:hover {
             opacity: 0.9;
+            color: #fff;
         }
         .contact-info p {
             margin: 10px 0;
@@ -167,6 +202,18 @@
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-50px) rotate(180deg); }
         }
+        .low-stock {
+            color: #ffeb3b;
+            font-weight: bold;
+        }
+        .welcome-banner {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.2rem;
@@ -178,6 +225,10 @@
             .right-column {
                 max-width: 100%;
             }
+            .navbar-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -187,164 +238,225 @@
     <div class="shape"></div>
     <div class="shape"></div>
 </div>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <a href="/dashboard" class="navbar-brand">
+            <i class="fas fa-chart-line me-2"></i>Kapil Traders
+        </a>
+        <div class="navbar-nav">
+            <a href="/dashboard" class="nav-link">
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
+            <a href="/products" class="nav-link">
+                <i class="fas fa-box me-1"></i>Products
+            </a>
+            <a href="/add-product" class="nav-link">
+                <i class="fas fa-plus me-1"></i>Add Product
+            </a>
+            <a href="/logout" class="nav-link">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
 <h1 th:text="${title} ?: 'Kapil Traders Dashboard'"></h1>
-<p>Welcome, <span th:text="${session.validuser != null} ? ${session.validuser.uname} : 'User'"></span>!</p>
+
+<div class="welcome-banner">
+    <i class="fas fa-user-circle me-2"></i>
+    Welcome back, <strong th:text="${session.validuser != null} ? ${session.validuser.uname} : 'User'">User</strong>!
+</div>
+
 <div class="container">
     <!-- Left Column: Products, Orders, Inventory Summary, Recent Activity, Contact -->
     <div class="left-column">
         <!-- Inventory Summary -->
         <div class="section">
-            <h2>Inventory Summary</h2>
+            <h2><i class="fas fa-chart-bar me-2"></i>Inventory Summary</h2>
             <div class="summary-grid">
                 <div class="summary-card">
                     <h3>Total Products</h3>
-                    <p>150</p>
+                    <p th:text="${totalProducts ?: 0}">0</p>
                 </div>
                 <div class="summary-card">
                     <h3>Low Stock</h3>
-                    <p>12</p>
+                    <p th:text="${lowStockProducts ?: 0}" th:class="${lowStockProducts > 0} ? 'low-stock' : ''">0</p>
                 </div>
                 <div class="summary-card">
                     <h3>Total Value</h3>
-                    <p>$45,000</p>
+                    <p th:text="'$' + ${#numbers.formatDecimal(totalValue ?: 0, 0, 2)}">$0.00</p>
                 </div>
+            </div>
+            <div th:if="${lowStockProducts > 0}" style="margin-top: 15px; padding: 10px; background: rgba(255, 235, 59, 0.2); border-radius: 5px;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Warning:</strong> <span th:text="${lowStockProducts}"></span> product(s) have low stock!
             </div>
         </div>
 
-        <!-- Products -->
+        <!-- Recent Products -->
         <div class="section">
-            <h2>Products</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Product A</td>
-                    <td>50</td>
-                    <td>$20.00</td>
-                    <td><a class="action-button" href="#">Edit</a></td>
-                </tr>
-                <tr>
-                    <td>Product B</td>
-                    <td>10</td>
-                    <td>$15.00</td>
-                    <td><a class="action-button" href="#">Edit</a></td>
-                </tr>
-                </tbody>
-            </table>
-            <a class="action-button" href="#">Add Product</a>
+            <h2><i class="fas fa-boxes me-2"></i>Recent Products</h2>
+            <div th:if="${recentProducts != null and #lists.size(recentProducts) > 0}">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${recentProducts}">
+                        <td th:text="${product.name}">Product Name</td>
+                        <td th:text="${product.quantity}" th:class="${product.quantity < 10} ? 'low-stock' : ''">0</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(product.price, 0, 2)}">$0.00</td>
+                        <td>
+                            <a th:href="@{/edit-product/{id}(id=${product.id})}" class="action-button">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${recentProducts == null or #lists.size(recentProducts) == 0}" class="text-center" style="padding: 20px;">
+                <i class="fas fa-box-open" style="font-size: 2rem; opacity: 0.5; margin-bottom: 10px;"></i>
+                <p style="opacity: 0.7;">No products found. Start by adding your first product!</p>
+            </div>
+            <a class="action-button" href="/products">
+                <i class="fas fa-list me-1"></i>View All Products
+            </a>
+            <a class="action-button" href="/add-product">
+                <i class="fas fa-plus me-1"></i>Add Product
+            </a>
         </div>
 
-        <!-- Orders -->
+        <!-- Quick Actions -->
         <div class="section">
-            <h2>Recent Orders</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>#1001</td>
-                    <td>John Doe</td>
-                    <td>$200.00</td>
-                    <td>Pending</td>
-                    <td><a class="action-button" href="#">View</a></td>
-                </tr>
-                <tr>
-                    <td>#1002</td>
-                    <td>Jane Smith</td>
-                    <td>$150.00</td>
-                    <td>Shipped</td>
-                    <td><a class="action-button" href="#">View</a></td>
-                </tr>
-                </tbody>
-            </table>
-            <a class="action-button" href="#">Create Order</a>
+            <h2><i class="fas fa-rocket me-2"></i>Quick Actions</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <a class="action-button" href="/add-product">
+                    <i class="fas fa-plus me-1"></i>Add New Product
+                </a>
+                <a class="action-button" href="/products">
+                    <i class="fas fa-search me-1"></i>Search Products
+                </a>
+                <a class="action-button" href="/products?lowstock=true">
+                    <i class="fas fa-exclamation-triangle me-1"></i>View Low Stock
+                </a>
+            </div>
         </div>
 
         <!-- Recent Activity -->
         <div class="section">
-            <h2>Recent Activity</h2>
-            <ul>
-                <li>Product A stock updated: +20 units (2025-08-02 15:30)</li>
-                <li>Order #1001 placed by John Doe (2025-08-02 14:00)</li>
-                <li>User Jane logged in (2025-08-02 13:45)</li>
+            <h2><i class="fas fa-history me-2"></i>Recent Activity</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <i class="fas fa-plus-circle me-2" style="color: #4caf50;"></i>
+                    System initialized - Ready to manage inventory
+                </li>
+                <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <i class="fas fa-user-plus me-2" style="color: #2196f3;"></i>
+                    User <span th:text="${session.validuser?.uname ?: 'User'}"></span> logged in
+                </li>
+                <li th:if="${totalProducts > 0}" style="padding: 8px 0;">
+                    <i class="fas fa-box me-2" style="color: #ff9800;"></i>
+                    Managing <span th:text="${totalProducts}"></span> product(s) in inventory
+                </li>
             </ul>
         </div>
 
         <!-- Contact -->
         <div class="section contact-info">
-            <h2>Contact</h2>
-            <p>Email: <a href="mailto:support@kapiltraders.com">support@kapiltraders.com</a></p>
-            <p>Phone: +1-555-123-4567</p>
-            <p>Address: 123 Business Street, City, Country</p>
-            <a class="action-button" href="#">Send Inquiry</a>
+            <h2><i class="fas fa-phone me-2"></i>Contact Support</h2>
+            <p><i class="fas fa-envelope me-2"></i>Email: <a href="mailto:support@kapiltraders.com" style="color: #80deea;">support@kapiltraders.com</a></p>
+            <p><i class="fas fa-phone-alt me-2"></i>Phone: +1-555-123-4567</p>
+            <p><i class="fas fa-map-marker-alt me-2"></i>Address: 123 Business Street, City, Country</p>
+            <a class="action-button" href="mailto:support@kapiltraders.com">
+                <i class="fas fa-paper-plane me-1"></i>Send Inquiry
+            </a>
         </div>
     </div>
 
     <!-- Right Column: Sales Report Chart -->
     <div class="right-column">
         <div class="section">
-            <h2>Sales Report</h2>
-            <canvas id="salesChart" style="max-width: 100%;"></canvas>
+            <h2><i class="fas fa-chart-line me-2"></i>Inventory Analytics</h2>
+            <canvas id="inventoryChart" style="max-width: 100%;"></canvas>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-info-circle me-2"></i>System Info</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Active Session</h3>
+                    <p style="font-size: 1rem;"><i class="fas fa-check-circle" style="color: #4caf50;"></i> Online</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Data Status</h3>
+                    <p style="font-size: 1rem;"><i class="fas fa-database" style="color: #2196f3;"></i> Synced</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-lightbulb me-2"></i>Tips</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 5px 0;"><i class="fas fa-star me-2" style="color: #ffc107;"></i>Keep track of low stock items</li>
+                <li style="padding: 5px 0;"><i class="fas fa-star me-2" style="color: #ffc107;"></i>Update product prices regularly</li>
+                <li style="padding: 5px 0;"><i class="fas fa-star me-2" style="color: #ffc107;"></i>Use search to find products quickly</li>
+            </ul>
         </div>
     </div>
 </div>
 
 <script>
-    // Chart.js configuration for Sales Report
-    const ctx = document.getElementById('salesChart').getContext('2d');
+    // Chart.js configuration for Inventory Analytics
+    const ctx = document.getElementById('inventoryChart').getContext('2d');
+    
+    // Get data from Thymeleaf
+    const totalProducts = /*[[${totalProducts}]]*/ 0;
+    const lowStockProducts = /*[[${lowStockProducts}]]*/ 0;
+    const goodStockProducts = totalProducts - lowStockProducts;
+    
     new Chart(ctx, {
-        type: 'bar',
+        type: 'doughnut',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: ['Good Stock', 'Low Stock', 'Out of Stock'],
             datasets: [{
-                label: 'Sales ($)',
-                data: [12000, 19000, 15000, 22000, 18000, 25000],
-                backgroundColor: 'rgba(255, 138, 128, 0.5)',
-                borderColor: 'rgba(255, 138, 128, 1)',
-                borderWidth: 1
+                label: 'Inventory Status',
+                data: [goodStockProducts, lowStockProducts, 0],
+                backgroundColor: [
+                    'rgba(76, 175, 80, 0.8)',   // Good stock - green
+                    'rgba(255, 193, 7, 0.8)',   // Low stock - yellow
+                    'rgba(244, 67, 54, 0.8)'    // Out of stock - red
+                ],
+                borderColor: [
+                    'rgba(76, 175, 80, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(244, 67, 54, 1)'
+                ],
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Sales Amount ($)',
-                        color: '#fff'
-                    },
-                    ticks: { color: '#fff' }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Month',
-                        color: '#fff'
-                    },
-                    ticks: { color: '#fff' }
-                }
-            },
             plugins: {
-                legend: { labels: { color: '#fff' } }
+                legend: { 
+                    labels: { color: '#fff' },
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Stock Distribution',
+                    color: '#fff'
+                }
             }
         }
     });
 </script>
 </body>
 </html>
-```
