@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #1e3a8a;
+        }
+
+        h1 { margin-bottom: 20px; }
+        h2 { margin-top: 50px; margin-bottom: 20px; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn-add { background-color: #4CAF50; color: #fff; }
+        .btn-edit { background-color: #3b82f6; color: #fff; }
+        .btn-delete { background-color: #ef4444; color: #fff; }
+        .btn-back { background-color: #6b7280; color: #fff; margin-bottom: 20px; }
+
+        /* Messages */
+        .message { font-weight: 600; margin-bottom: 20px; text-align: center; }
+        .message.success { color: #16a34a; }
+        .message.error { color: #dc2626; }
+
+        /* Form card */
+        form {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        button[type="submit"] {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) { background-color: #f3f4f6; }
+
+        /* Action buttons in table */
+        td a {
+            margin: 0 3px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+
+        td a:hover { transform: translateY(-2px); }
+
+    </style>
+</head>
+<body>
+
+<h1>Sales Form</h1>
+
+<!-- Back to Dashboard Button -->
+<a th:href="@{/dashboard}" class="btn btn-back">← Back to Dashboard</a>
+
+<!-- Display Success/Error Messages -->
+<div th:if="${success}" class="message success" th:text="${success}"></div>
+<div th:if="${error}" class="message error" th:text="${error}"></div>
+
+<!-- Button to go to Add Customer page -->
+<a th:href="@{/customers/add}" class="btn btn-add" style="margin-bottom: 20px;">Add Customer</a>
+
+<form th:action="@{/sales/add}" th:object="${sale}" method="post">
+    <!-- Select Customer -->
+    <label for="customer">Customer:</label>
+    <select th:field="*{customer.id}" id="customer" required>
+        <option value="">--Select Customer--</option>
+        <option th:each="cust : ${customers}" th:value="${cust.id}" th:text="${cust.name}"></option>
+    </select>
+
+    <!-- Select Product -->
+    <label for="product">Product:</label>
+    <select th:field="*{product.id}" id="product" required>
+        <option value="">--Select Product--</option>
+        <option th:each="prod : ${products}" th:value="${prod.id}" th:text="${prod.name}"></option>
+    </select>
+
+    <!-- Quantity -->
+    <label for="quantity">Quantity:</label>
+    <input type="number" th:field="*{quantity}" id="quantity" min="1" required/>
+
+    <button type="submit">Add Sale</button>
+</form>
+
+<h2>All Sales</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="sale : ${sales}">
+            <td th:text="${sale.id}"></td>
+            <td th:text="${sale.customer != null ? sale.customer.name : 'N/A'}"></td>
+            <td th:text="${sale.product != null ? sale.product.name : 'N/A'}"></td>
+            <td th:text="${sale.quantity}"></td>
+            <td th:text="${sale.totalPrice}"></td>
+            <td th:text="${sale.date}"></td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
